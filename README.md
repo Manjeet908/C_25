@@ -2,7 +2,7 @@
 
 A high-performance Image Processing and Computer Vision (IPCV) anomaly detection system built specifically for industrial bottle inspection on the **MVTec AD Bottle dataset**.
 
-Built with **pure classical computer vision** (zero deep learning, zero heavy neural network weights) using multi-channel statistical feature modeling, spatial alignment, and morphological defect localization.
+Built with **pure classical computer vision** using multi-channel statistical feature modeling, spatial alignment, and morphological defect localization.
 
 ---
 
@@ -19,7 +19,6 @@ Built with **pure classical computer vision** (zero deep learning, zero heavy ne
    - **Thermal Anomaly Heatmap**: Continuous Jet colormap showing spatial anomaly intensity.
    - **Defect / Suspicion Overlay**: Highlighted mask (Red for Defect, Amber for Close Call) with bounding boxes.
 5. **Interactive Streamlit Web Application**: Complete with dual-boundary slider (Good | Close Call | Defective) and one-click test sample selection.
-6. **Command-Line Interface (CLI)**: Headless detection tool for batch processing and automated pipelines.
 
 ---
 
@@ -82,7 +81,7 @@ Input Image (900x900)
 ## 📁 Project Directory Structure
 
 ```
-V2/
+C_25/
 ├── dataset/bottle/                 # MVTec Bottle Dataset
 │   ├── train/good/                 # 209 normal training images
 │   ├── test/                       # 83 test images (good, broken_large, broken_small, contamination)

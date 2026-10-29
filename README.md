@@ -109,9 +109,41 @@ V2/
 ## 🚀 Setup & Execution
 
 ### 1. Environment Setup
-Activate the virtual environment:
+
+#### Step 1: Navigate to the project directory
 ```powershell
-.\.venv\Scripts\Activate.ps1
+cd C_25
+```
+
+#### Step 2: Create a virtual environment
+```powershell
+# Using standard Python
+python -m venv .venv
+
+# Or using Python launcher (e.g., Python 3.11)
+py -3.11 -m venv .venv
+```
+
+#### Step 3: Activate the virtual environment
+- **PowerShell:**
+  ```powershell
+  .\.venv\Scripts\Activate.ps1
+  ```
+  *(Note: If execution of scripts is disabled, run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`)*
+
+- **Command Prompt (CMD):**
+  ```cmd
+  .\.venv\Scripts\activate.bat
+  ```
+
+- **Linux / macOS:**
+  ```bash
+  source .venv/bin/activate
+  ```
+
+#### Step 4: Install Dependencies
+```powershell
+pip install -r requirements.txt
 ```
 
 ### 2. Launch the Streamlit Web Application
@@ -120,9 +152,9 @@ Run the interactive application:
 .\.venv\Scripts\streamlit run app.py
 ```
 Open your browser at `http://localhost:8501`.
-- Upload any bottle image via drag-and-drop.
-- Or select from the pre-loaded sample images in the sidebar.
-- Adjust the decision boundary range slider to tune sensitivity.
+- Select from the pre-loaded benchmark samples directly on the main page.
+- Or upload any custom bottle image via drag-and-drop.
+- Adjust the decision boundary range slider in the sidebar to tune sensitivity.
 
 ### 3. Run Benchmark Evaluation
 Evaluate performance across all 83 test benchmark images:

@@ -96,6 +96,13 @@ st.markdown(
         font-weight: 400;
         margin-top: 5px;
     }
+    .quick-test-box {
+        background-color: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 16px 20px 8px 20px;
+        margin-bottom: 1.5rem;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -151,35 +158,6 @@ st.sidebar.markdown(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("Quick Test Samples")
-sample_mode = st.sidebar.selectbox(
-    "Choose Test Source",
-    [
-        "Upload Custom Image",
-        "Sample: Good Bottle",
-        "Sample: Broken Large",
-        "Sample: Broken Small",
-        "Sample: Contamination",
-    ],
-)
-
-sample_image_path = None
-if sample_mode != "Upload Custom Image":
-    cat_map = {
-        "Sample: Good Bottle": "good",
-        "Sample: Broken Large": "broken_large",
-        "Sample: Broken Small": "broken_small",
-        "Sample: Contamination": "contamination",
-    }
-    cat = cat_map[sample_mode]
-    cat_dir = TEST_DIR / cat
-    if cat_dir.exists():
-        files = sorted(list(cat_dir.glob("*.png")))
-        file_names = [f.name for f in files]
-        selected_file = st.sidebar.selectbox("Select Sample Image", file_names)
-        sample_image_path = cat_dir / selected_file
-
-st.sidebar.markdown("---")
 st.sidebar.info(
     "💡 **Zero False Defectives**: Close-call samples are routed for secondary review rather than being falsely rejected as defective."
 )
@@ -191,24 +169,75 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Image acquisition
+# ----------------- QUICK TEST SAMPLES & INPUT SECTION -----------------
+st.markdown("### 🧪 Quick Test Samples & Inspection Input")
+
+input_mode = st.radio(
+    "Choose Inspection Source:",
+    ["🧪 Quick Test Samples (Benchmark)", "📤 Upload Custom Image"],
+    horizontal=True,
+    help="Select a benchmark sample bottle from the dataset or upload your own image.",
+)
+
 uploaded_file = None
 image_bgr = None
 display_name = ""
 
-if sample_mode == "Upload Custom Image":
+if input_mode == "🧪 Quick Test Samples (Benchmark)":
+    st.markdown('<div class="quick-test-box">', unsafe_allow_html=True)
+    cat_col, file_col = st.columns(2)
+
+    with cat_col:
+        cat_display = st.selectbox(
+            "📁 Select Defect Category:",
+            [
+                "🟢 Good Bottle (Normal / Pass)",
+                "🔴 Broken Large (Severe Defect)",
+                "🟠 Broken Small (Subtle Defect)",
+                "🟣 Contamination (Surface Defect)",
+            ],
+            index=0,
+            help="Choose the ground-truth benchmark category from the MVTec bottle test set.",
+        )
+
+    cat_map = {
+        "🟢 Good Bottle (Normal / Pass)": ("good", "Good Bottle"),
+        "🔴 Broken Large (Severe Defect)": ("broken_large", "Broken Large"),
+        "🟠 Broken Small (Subtle Defect)": ("broken_small", "Broken Small"),
+        "🟣 Contamination (Surface Defect)": ("contamination", "Contamination"),
+    }
+    cat_dir_name, cat_short_name = cat_map[cat_display]
+    cat_dir = TEST_DIR / cat_dir_name
+
+    if cat_dir.exists():
+        files = sorted(list(cat_dir.glob("*.png")))
+        file_names = [f.name for f in files]
+        with file_col:
+            selected_file = st.selectbox(
+                f"🖼️ Select Sample Image ({len(file_names)} samples):",
+                file_names,
+                index=0,
+                help=f"Select an image file from dataset/bottle/test/{cat_dir_name}/",
+            )
+        sample_image_path = cat_dir / selected_file
+        if sample_image_path.exists():
+            image_bgr = cv2.imread(str(sample_image_path))
+            display_name = f"{cat_short_name} ({selected_file})"
+            st.caption(f"📍 Active Dataset Sample: `dataset/bottle/test/{cat_dir_name}/{selected_file}`")
+    else:
+        st.warning(f"Benchmark test directory not found: `{cat_dir}`")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+else:
     uploaded_file = st.file_uploader(
         "Upload a bottle inspection image (PNG, JPG, JPEG):",
         type=["png", "jpg", "jpeg"],
+        help="Upload an image to inspect using the classical CV anomaly detection pipeline.",
     )
     if uploaded_file is not None:
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
         image_bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         display_name = uploaded_file.name
-else:
-    if sample_image_path and sample_image_path.exists():
-        image_bgr = cv2.imread(str(sample_image_path))
-        display_name = f"{sample_mode} ({sample_image_path.name})"
 
 # Processing & Display
 if image_bgr is not None:
@@ -373,4 +402,4 @@ if image_bgr is not None:
         else:
             st.info("No localized regions exceeded the minimum defect size threshold.")
 else:
-    st.info("👆 Please upload an image or select a sample bottle from the sidebar to inspect.")
+    st.info("👆 Please select a sample bottle above or upload an image to inspect.")
